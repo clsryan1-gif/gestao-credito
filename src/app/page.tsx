@@ -9,6 +9,7 @@ import { SheetSwitcher, SheetID } from '@/components/sections/SheetSwitcher'
 import { UsersSheet } from '@/components/sections/UsersSheet'
 import { SalesSheet } from '@/components/sections/SalesSheet'
 import { LoanForm } from '@/components/sections/LoanForm'
+import { LoanDetailsModal } from '@/components/sections/LoanDetailsModal'
 import { RevenueChart } from '@/components/ui/RevenueChart'
 import { formatCurrency } from '@/lib/utils'
 import { TrendingUp, Users2, LineChart as ChartIcon } from 'lucide-react'
@@ -17,21 +18,27 @@ export default function Dashboard() {
   const [loans, setLoans] = useState<Loan[]>([])
   const [mounted, setMounted] = useState(false)
   const [currentSheet, setCurrentSheet] = useState<SheetID>('sales')
+  const [selectedLoan, setSelectedLoan] = useState<Loan | null>(null)
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false)
+
+  const refreshLoans = () => {
+    setLoans(loanService.getLoans())
+  }
 
   useEffect(() => {
-    setLoans(loanService.getLoans())
+    refreshLoans()
     setMounted(true)
   }, [])
 
   const handleAddLoan = (loan: Loan) => {
     loanService.saveLoan(loan)
-    setLoans([...loans, loan])
+    refreshLoans()
     setCurrentSheet('sales') // Ir para a planilha de vendas após adicionar
   }
 
-  const handleDeleteLoan = (id: string) => {
-    loanService.deleteLoan(id)
-    setLoans(loans.filter(l => l.id !== id))
+  const handleManageLoan = (loan: Loan) => {
+    setSelectedLoan(loan)
+    setIsDetailsOpen(true)
   }
 
   const totalToReceive = loans.reduce((acc, curr) => acc + curr.totalAmount, 0)
@@ -103,7 +110,7 @@ export default function Dashboard() {
 
           {currentSheet === 'sales' && (
             <FadeIn>
-              <SalesSheet loans={loans} onDelete={handleDeleteLoan} />
+              <SalesSheet loans={loans} onManage={handleManageLoan} />
             </FadeIn>
           )}
 
@@ -119,6 +126,20 @@ export default function Dashboard() {
 
       {/* Seletor de Sheets no Estilo Excel */}
       <SheetSwitcher currentSheet={currentSheet} onSheetChange={setCurrentSheet} />
+
+      {/* Modal de Detalhes */}
+      <LoanDetailsModal 
+        loan={selectedLoan}
+        isOpen={isDetailsOpen}
+        onClose={() => setIsDetailsOpen(false)}
+        onUpdate={() => {
+          refreshLoans()
+          if (selectedLoan) {
+            const updated = loanService.getLoans().find(l => l.id === selectedLoan.id)
+            setSelectedLoan(updated || null)
+          }
+        }}
+      />
     </main>
   )
 }

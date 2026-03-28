@@ -87,5 +87,26 @@ export const loanService = {
       return updatedLoan
     }
     return null
+  },
+
+  removePayment: (loanId: string, paymentId: string) => {
+    const loans = loanService.getLoans()
+    const index = loans.findIndex((l) => l.id === loanId)
+    if (index !== -1) {
+      const loan = loans[index]
+      const updatedPayments = (loan.payments || []).filter(p => p.id !== paymentId)
+      
+      const updatedLoan: Loan = {
+        ...loan,
+        paidInstallments: Math.max(0, (loan.paidInstallments || 0) - 1),
+        payments: updatedPayments,
+        status: 'ativo'
+      }
+      
+      loans[index] = updatedLoan
+      localStorage.setItem('gestao_credito_loans', JSON.stringify(loans))
+      return updatedLoan
+    }
+    return null
   }
 }
