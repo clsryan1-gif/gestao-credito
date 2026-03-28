@@ -24,6 +24,7 @@ export interface Loan {
   unitPrice?: number
   downPayment?: number
   whatsapp?: string
+  calculationMode?: 'juros' | 'crediario'
   payments?: Payment[]
 }
 

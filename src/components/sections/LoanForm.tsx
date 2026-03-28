@@ -13,6 +13,7 @@ interface LoanFormProps {
 
 export function LoanForm({ onAdd }: LoanFormProps) {
   const [type, setType] = useState<'emprestimo' | 'venda'>('emprestimo')
+  const [mode, setMode] = useState<'juros' | 'crediario'>('crediario')
   const [formData, setFormData] = useState({
     name: '',
     itemName: '',
@@ -21,7 +22,7 @@ export function LoanForm({ onAdd }: LoanFormProps) {
     downPayment: '0',
     amount: '',
     installments: '1',
-    interest: '0',
+    interest: '30',
     interestType: 'mensal' as CalculationType,
     whatsapp: ''
   })
@@ -38,7 +39,7 @@ export function LoanForm({ onAdd }: LoanFormProps) {
   const installmentsNum = parseInt(formData.installments) || 1
   const interestNum = parseFloat(formData.interest) || 0
   
-  const result = calculateLoan(calculatedAmount, installmentsNum, interestNum, formData.interestType)
+  const result = calculateLoan(calculatedAmount, installmentsNum, interestNum, formData.interestType, mode)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -60,7 +61,8 @@ export function LoanForm({ onAdd }: LoanFormProps) {
       quantity: type === 'venda' ? quantityNum : undefined,
       unitPrice: type === 'venda' ? unitPriceNum : undefined,
       downPayment: type === 'venda' ? downPaymentNum : undefined,
-      whatsapp: formData.whatsapp
+      whatsapp: formData.whatsapp,
+      calculationMode: mode
     }
 
     onAdd(newLoan)
@@ -85,31 +87,63 @@ export function LoanForm({ onAdd }: LoanFormProps) {
           <div className="h-10 w-10 rounded-xl bg-dourado/10 flex items-center justify-center border border-dourado/20">
             <PlusCircle className="h-5 w-5 text-dourado" />
           </div>
-          <h2 className="font-display text-2xl font-bold italic text-white">Novo Registro</h2>
+          <h2 className="font-display text-2xl font-bold italic text-white text-glow-dourado">{mode === 'crediario' ? 'Novo Carnê 30%' : 'Novo Empréstimo'}</h2>
         </div>
         
-        {/* Toggle Tipo */}
-        <div className="flex bg-preto border border-white/10 rounded-lg p-1">
-          <button
-            type="button"
-            onClick={() => setType('emprestimo')}
-            className={cn(
-              "px-4 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all",
-              type === 'emprestimo' ? "bg-dourado text-black" : "text-white/40 hover:text-white"
-            )}
-          >
-            Empréstimo
-          </button>
-          <button
-            type="button"
-            onClick={() => setType('venda')}
-            className={cn(
-              "px-4 py-1.5 rounded-md text-[10px] font-bold uppercase tracking-wider transition-all",
-              type === 'venda' ? "bg-dourado text-black" : "text-white/40 hover:text-white"
-            )}
-          >
-            Venda
-          </button>
+        <div className="flex flex-wrap gap-2">
+          {/* Toggle Modo */}
+          <div className="flex bg-preto border border-white/5 rounded-lg p-1">
+            <button
+              type="button"
+              onClick={() => {
+                setMode('crediario')
+                setFormData({...formData, interest: '30'})
+              }}
+              className={cn(
+                "px-3 py-1 rounded-md text-[9px] font-bold uppercase tracking-wider transition-all",
+                mode === 'crediario' ? "bg-dourado text-black" : "text-white/40"
+              )}
+            >
+              Modo Crediário
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setMode('juros')
+                setFormData({...formData, interest: '0'})
+              }}
+              className={cn(
+                "px-3 py-1 rounded-md text-[9px] font-bold uppercase tracking-wider transition-all",
+                mode === 'juros' ? "bg-green-500 text-black border-green-500" : "text-white/40"
+              )}
+            >
+              Modo Juros
+            </button>
+          </div>
+
+          {/* Toggle Tipo */}
+          <div className="flex bg-preto border border-white/10 rounded-lg p-1">
+            <button
+              type="button"
+              onClick={() => setType('emprestimo')}
+              className={cn(
+                "px-3 py-1 rounded-md text-[9px] font-bold uppercase tracking-wider transition-all",
+                type === 'emprestimo' ? "bg-white/10 text-white" : "text-white/40 hover:text-white"
+              )}
+            >
+              Dinheiro
+            </button>
+            <button
+              type="button"
+              onClick={() => setType('venda')}
+              className={cn(
+                "px-3 py-1 rounded-md text-[9px] font-bold uppercase tracking-wider transition-all",
+                type === 'venda' ? "bg-white/10 text-white" : "text-white/40 hover:text-white"
+              )}
+            >
+              Produto
+            </button>
+          </div>
         </div>
       </div>
 
@@ -228,7 +262,9 @@ export function LoanForm({ onAdd }: LoanFormProps) {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-1.5">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-dourado-claro/70 ml-1">Juros %</label>
+            <label className="text-[11px] font-bold uppercase tracking-wider text-dourado-claro/70 ml-1">
+              {mode === 'crediario' ? 'Lucro Fixo %' : 'Juros %'}
+            </label>
             <div className="relative">
               <Percent className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/20" />
               <input 
@@ -240,18 +276,20 @@ export function LoanForm({ onAdd }: LoanFormProps) {
               />
             </div>
           </div>
-          <div className="space-y-1.5">
-            <label className="text-[11px] font-bold uppercase tracking-wider text-dourado-claro/70 ml-1">Base</label>
-            <select 
-              className="w-full bg-preto border border-white/10 rounded-lg px-4 py-3 text-white focus:border-dourado/50 focus:outline-none transition-all appearance-none cursor-pointer"
-              value={formData.interestType}
-              onChange={(e) => setFormData({...formData, interestType: e.target.value as CalculationType})}
-            >
-              <option value="diario">Diário</option>
-              <option value="semanal">Semanal</option>
-              <option value="mensal">Mensal</option>
-            </select>
-          </div>
+          {mode === 'juros' && (
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-bold uppercase tracking-wider text-dourado-claro/70 ml-1">Base</label>
+              <select 
+                className="w-full bg-preto border border-white/10 rounded-lg px-4 py-3 text-white focus:border-dourado/50 focus:outline-none transition-all appearance-none cursor-pointer"
+                value={formData.interestType}
+                onChange={(e) => setFormData({...formData, interestType: e.target.value as CalculationType})}
+              >
+                <option value="diario">Diário</option>
+                <option value="semanal">Semanal</option>
+                <option value="mensal">Mensal</option>
+              </select>
+            </div>
+          )}
         </div>
       </div>
 
@@ -273,7 +311,7 @@ export function LoanForm({ onAdd }: LoanFormProps) {
           )}
         </div>
         <Button variant="primary" size="lg" type="submit" className="w-full sm:w-auto">
-          {type === 'venda' ? 'Registrar Venda' : 'Adicionar Dívida'}
+          {mode === 'crediario' ? 'Emitir Novo Carnê' : 'Adicionar Empréstimo'}
         </Button>
       </div>
 

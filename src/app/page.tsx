@@ -63,9 +63,10 @@ export default function Dashboard() {
                     <div className="h-10 w-10 rounded-xl bg-dourado/10 flex items-center justify-center border border-dourado/20">
                       <TrendingUp className="h-5 w-5 text-dourado" />
                     </div>
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-white/40">Total a Receber</span>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-dourado/60">Fluxo de Caixa</p>
                   </div>
                   <p className="text-3xl font-display font-bold text-white italic">{formatCurrency(totalToReceive)}</p>
+                  <p className="text-[10px] text-white/40 uppercase tracking-widest mt-1">Total a Receber</p>
                 </div>
 
                 <div className="bg-preto-card border border-white/5 p-6 rounded-2xl shadow-dark relative overflow-hidden group">
@@ -85,7 +86,8 @@ export default function Dashboard() {
                     </div>
                     <span className="text-[11px] font-bold uppercase tracking-wider text-white/40">Contatos Ativos</span>
                   </div>
-                  <p className="text-3xl font-display font-bold text-white">{activeLoans} Amigos</p>
+                  <p className="text-3xl font-display font-bold text-white leading-none">{activeLoans}</p>
+                  <p className="text-[10px] font-bold text-white/40 uppercase tracking-widest mt-1">Clientes com Carnê</p>
                 </div>
               </div>
               

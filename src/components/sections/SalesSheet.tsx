@@ -14,7 +14,7 @@ export function SalesSheet({ loans, onDelete }: SalesSheetProps) {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-display font-bold italic text-white/90">Folha 03: Vendas e Ativos</h2>
+        <h2 className="text-xl font-display font-bold italic text-white/90">Folha 03: Carnês e Contratos</h2>
       </div>
 
       <ExcelGrid columns={['Tipo', 'Item/Contrato', 'Cliente', 'Valor Original', 'Parcelas', 'Status', 'Total']}>

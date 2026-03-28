@@ -4,11 +4,23 @@ export function calculateLoan(
   amount: number,
   installments: number,
   interest: number,
-  interestType: CalculationType
+  interestType: CalculationType,
+  mode: 'juros' | 'crediario' = 'juros'
 ): CalculationResult {
-  // Para amigos, geralmente é juros simples por período
-  // Mas vamos aplicar uma lógica de juros compostos por período para ser mais "gestão de crédito"
-  // F = P * (1 + i)^n
+  if (mode === 'crediario') {
+    // Lógica Ryan: Lucro de X% fixo sobre o total (Padrão 30%)
+    const profitRate = interest / 100
+    const totalToPay = amount * (1 + profitRate)
+    const installmentValue = totalToPay / installments
+    
+    return {
+      totalToPay: parseFloat(totalToPay.toFixed(2)),
+      installmentValue: parseFloat(installmentValue.toFixed(2)),
+      interestValue: parseFloat((totalToPay - amount).toFixed(2))
+    }
+  }
+
+  // Lógica original de Juros Compostos por Período
   const i = interest / 100
   const n = installments
   

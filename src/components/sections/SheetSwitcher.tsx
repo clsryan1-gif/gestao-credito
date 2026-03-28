@@ -12,10 +12,10 @@ interface SheetSwitcherProps {
 
 export function SheetSwitcher({ currentSheet, onSheetChange }: SheetSwitcherProps) {
   const tabs = [
-    { id: 'dashboard', label: 'Resumo', icon: LayoutDashboard },
-    { id: 'users', label: 'Usuários', icon: Users },
-    { id: 'sales', label: 'Vendas', icon: ShoppingBag },
-    { id: 'register', label: 'Novo', icon: PlusCircle },
+    { id: 'dashboard', label: 'Fluxo de Caixa', icon: LayoutDashboard },
+    { id: 'users', label: 'Meus Clientes', icon: Users },
+    { id: 'sales', label: 'Meus Carnês', icon: ShoppingBag },
+    { id: 'register', label: 'Novo Carnê', icon: PlusCircle },
   ] as const
 
   return (
