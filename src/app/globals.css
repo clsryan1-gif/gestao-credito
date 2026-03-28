@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@theme {
+  /* Fontes */
+  --font-display: var(--font-cormorant), Georgia, serif;
+  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+
+  /* Cores — Primárias */
+  --color-preto: #0A0A0A;
+  --color-preto-suave: #111111;
+  --color-preto-card: #1A1A1A;
+  --color-dourado: #C9A84C;
+  --color-dourado-claro: #E8C97A;
+  --color-dourado-escuro: #8B6914;
+
+  /* Cores — Secundárias */
+  --color-offwhite: #F5F0E8;
+  --color-marrom: #1A0F00;
+  --color-bege: #E0D8CC;
+
+  /* Sombras */
+  --shadow-card: 0 4px 16px rgba(201, 168, 76, 0.08), 0 1px 4px rgba(0, 0, 0, 0.20);
+  --shadow-card-hover: 0 8px 32px rgba(201, 168, 76, 0.18), 0 2px 8px rgba(0, 0, 0, 0.25);
+  --shadow-dark: 0 4px 24px rgba(0, 0, 0, 0.40);
+  --shadow-nav: 0 1px 20px rgba(0, 0, 0, 0.60);
+}
+
+@layer base {
+  :root {
+    --color-dourado-borda: rgba(201, 168, 76, 0.20);
+    --color-dourado-glow: rgba(201, 168, 76, 0.12);
+    --color-offwhite-card: #FFFFFF;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-preto);
+    color: white;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background-color: rgba(201, 168, 76, 0.30);
+    color: white;
+  }
+}
