@@ -8,30 +8,24 @@ export interface PaymentEntry {
   installmentIndex: number
 }
 
-export interface Debt {
+export interface Contract {
   id: string
   clientName: string
   whatsapp: string
-  itemName: string
-  
-  // Financeiro
-  originalAmount: number
+  itemDescription: string
+  originalValue: number
   totalToPay: number
   installmentsCount: number
   interestRate: number
-  mode: CalculationMode
-  
-  // Progresso
-  paidCount: number
+  status: 'ativo' | 'atrasado' | 'liquidado'
+  paidInstallments: number
+  paymentsLog: PaymentEntry[]
   startDate: string
-  status: DebtStatus
-  
-  // Metadados
-  payments: PaymentEntry[]
-  notes?: string
   createdAt: string
   updatedAt: string
 }
+
+export type ContractStatus = 'ativo' | 'atrasado' | 'liquidado'
 
 export interface GlobalMetrics {
   totalReceivable: number

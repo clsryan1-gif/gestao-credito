@@ -7,6 +7,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline'
   size?: 'sm' | 'md' | 'lg' | 'icon'
   children?: React.ReactNode
+  loading?: boolean
 }
 
 export function Button({ 
@@ -14,6 +15,8 @@ export function Button({
   size = 'md', 
   children, 
   className, 
+  loading,
+  disabled,
   ...props 
 }: ButtonProps) {
   const variants = {
@@ -37,11 +40,18 @@ export function Button({
         'inline-flex items-center justify-center gap-2 font-display',
         variants[variant],
         sizes[size],
+        (disabled || loading) && 'opacity-50 cursor-not-allowed',
         className
       )}
+      disabled={disabled || loading}
       {...props}
     >
-      {children}
+      {loading ? (
+        <div className="flex items-center gap-2">
+           <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+           CARREGANDO...
+        </div>
+      ) : children}
     </button>
   )
 }
