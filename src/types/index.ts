@@ -1,35 +1,42 @@
-export type CalculationType = 'diario' | 'semanal' | 'mensal'
+export type DebtStatus = 'ativo' | 'atrasado' | 'liquidado'
+export type CalculationMode = 'crediario' | 'juros'
 
-export interface Payment {
+export interface PaymentEntry {
   id: string
   date: string
   amount: number
-  installmentNumber: number
+  installmentIndex: number
 }
 
-export interface Loan {
+export interface Debt {
   id: string
-  name: string
-  amount: number
-  installments: number
-  interest: number
-  interestType: CalculationType
+  clientName: string
+  whatsapp: string
+  itemName: string
+  
+  // Financeiro
+  originalAmount: number
+  totalToPay: number
+  installmentsCount: number
+  interestRate: number
+  mode: CalculationMode
+  
+  // Progresso
+  paidCount: number
   startDate: string
-  paidInstallments: number
-  totalAmount: number
-  status: 'ativo' | 'pago' | 'atrasado'
-  type?: 'emprestimo' | 'venda'
-  itemName?: string
-  quantity?: number
-  unitPrice?: number
-  downPayment?: number
-  whatsapp?: string
-  calculationMode?: 'juros' | 'crediario'
-  payments?: Payment[]
+  status: DebtStatus
+  
+  // Metadados
+  payments: PaymentEntry[]
+  notes?: string
+  createdAt: string
+  updatedAt: string
 }
 
-export interface CalculationResult {
-  totalToPay: number
-  installmentValue: number
-  interestValue: number
+export interface GlobalMetrics {
+  totalReceivable: number
+  totalOriginal: number
+  totalProfit: number
+  activeDebts: number
+  overdueDebts: number
 }

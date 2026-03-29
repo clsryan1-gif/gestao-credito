@@ -1,54 +1,47 @@
-import { cva, type VariantProps } from 'class-variance-authority'
+'use client'
+
+import React from 'react'
 import { cn } from '@/lib/utils'
-import { ArrowUpRight } from 'lucide-react'
 
-const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 font-sans text-[13px] font-bold uppercase tracking-[0.08em] transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-dourado focus-visible:ring-offset-2',
-  {
-    variants: {
-      variant: {
-        primary:
-          'bg-dourado text-black hover:bg-dourado-claro hover:scale-[1.02] active:scale-[0.98]',
-        secondary:
-          'bg-transparent text-white border border-white/35 hover:border-dourado/60 hover:text-dourado',
-        ghost:
-          'bg-transparent text-dourado-escuro border border-dourado hover:bg-dourado hover:text-black',
-        danger:
-          'bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500 hover:text-white',
-      },
-      size: {
-        sm: 'px-4 py-2 text-xs',
-        md: 'px-7 py-3 text-[13px]',
-        lg: 'px-9 py-4 text-sm',
-      },
-    },
-    defaultVariants: {
-      variant: 'primary',
-      size: 'md',
-    },
-  }
-)
-
-interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  showArrow?: boolean
+interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  variant?: 'primary' | 'secondary' | 'danger' | 'ghost' | 'outline'
+  size?: 'sm' | 'md' | 'lg' | 'icon'
+  children?: React.ReactNode
 }
 
-export function Button({
-  className,
-  variant,
-  size,
-  showArrow = false,
-  children,
-  ...props
+export function Button({ 
+  variant = 'primary', 
+  size = 'md', 
+  children, 
+  className, 
+  ...props 
 }: ButtonProps) {
-  const classes = cn(buttonVariants({ variant, size }), 'rounded-lg', className)
+  const variants = {
+    primary: 'bg-dourado text-black hover:bg-dourado/90 shadow-lg shadow-dourado/20 active:scale-95 transition-all text-glow-dourado',
+    secondary: 'bg-white/10 text-white hover:bg-white/20 active:scale-95 transition-all',
+    danger: 'bg-red-500/10 text-red-500 border border-red-500/20 hover:bg-red-500/20 active:scale-95 transition-all',
+    ghost: 'bg-transparent text-white/40 hover:text-white hover:bg-white/5 transition-all',
+    outline: 'bg-transparent border border-white/10 text-white/60 hover:text-white hover:border-white/30 transition-all'
+  }
+
+  const sizes = {
+    sm: 'px-3 py-1.5 text-[10px] font-bold uppercase tracking-widest rounded-lg',
+    md: 'px-6 py-2.5 text-xs font-bold uppercase tracking-widest rounded-xl',
+    lg: 'px-8 py-4 text-sm font-bold uppercase tracking-widest rounded-2xl',
+    icon: 'p-2 rounded-lg'
+  }
 
   return (
-    <button className={classes} {...props}>
+    <button 
+      className={cn(
+        'inline-flex items-center justify-center gap-2 font-display',
+        variants[variant],
+        sizes[size],
+        className
+      )}
+      {...props}
+    >
       {children}
-      {showArrow && <ArrowUpRight className="h-4 w-4" />}
     </button>
   )
 }
