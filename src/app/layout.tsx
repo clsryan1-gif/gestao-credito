@@ -14,7 +14,15 @@ const outfit = Outfit({
 
 export const metadata: Metadata = {
   title: "G-CREDITO | Private Debt Control",
-  description: "Sistema Ultra-Premium de Gestão de Crédito Amigo",
+  description: "Sistema Ultra-Premium de Gestão de Crédito Digital",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "G-Credito",
+  },
+  icons: {
+    apple: "/icons/apple-icon.png",
+  },
 };
 
 export default function RootLayout({

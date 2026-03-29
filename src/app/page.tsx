@@ -11,12 +11,16 @@ import {
   ShieldCheck, 
   BarChart3, 
   Plus, 
-  ListOrdered
+  ListOrdered,
+  Download,
+  Database
 } from 'lucide-react'
 import { DebtTable } from '@/components/ui/DebtTable'
 import { DebtForm } from '@/components/ui/DebtForm'
 import { ActionDrawer } from '@/components/ui/ActionDrawer'
+import { InstallBanner } from '@/components/ui/InstallBanner'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Lock, Zap } from 'lucide-react'
 
 export default function Dashboard() {
   const [debts, setDebts] = useState<Debt[]>([])
@@ -25,6 +29,7 @@ export default function Dashboard() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [view, setView] = useState<'list' | 'add'>('list')
   const [mounted, setMounted] = useState(false)
+  const [search, setSearch] = useState('')
 
   const refreshData = () => {
     const allDebts = gStore.getDebts()
@@ -40,6 +45,29 @@ export default function Dashboard() {
   const handleManage = (debt: Debt) => {
     setSelectedDebt(debt)
     setIsDrawerOpen(true)
+  }
+
+  const filteredDebts = debts.filter(d => 
+    d.clientName.toLowerCase().includes(search.toLowerCase()) || 
+    d.itemName.toLowerCase().includes(search.toLowerCase())
+  )
+
+  const handleExport = () => gStore.exportBackup()
+  
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      const content = event.target?.result as string
+      if (gStore.importBackup(content)) {
+        alert('Dados importados com sucesso!')
+        refreshData()
+      } else {
+        alert('Falha ao importar. Arquivo inválido.')
+      }
+    }
+    reader.readAsText(file)
   }
 
   if (!mounted) return null
@@ -141,7 +169,18 @@ export default function Dashboard() {
                   exit={{ opacity: 0, y: -20 }}
                   transition={{ duration: 0.4 }}
                 >
-                  <DebtTable debts={debts} onManage={handleManage} />
+                  <div className="mb-6 flex gap-4">
+                    <div className="flex-1 relative">
+                       <input 
+                        type="text"
+                        placeholder="BUSCAR CONTRATO OU CLIENTE..."
+                        className="w-full bg-preto border border-white/5 rounded-2xl pl-6 pr-4 py-4 text-[10px] font-bold uppercase tracking-widest text-white focus:border-dourado/40 focus:outline-none transition-all"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                      />
+                    </div>
+                  </div>
+                  <DebtTable debts={filteredDebts} onManage={handleManage} />
                 </motion.div>
               ) : (
                 <motion.div 
@@ -155,9 +194,70 @@ export default function Dashboard() {
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* Seção de Privacidade / Banco de Dados Local */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.8 }}
+              className="mt-16 grid grid-cols-1 md:grid-cols-3 gap-6 border-t border-white/5 pt-12"
+            >
+              <div className="bg-white/[0.02] p-6 rounded-2xl border border-white/5">
+                <div className="h-10 w-10 bg-dourado/10 rounded-xl flex items-center justify-center mb-4">
+                  <Lock className="h-5 w-5 text-dourado" />
+                </div>
+                <h3 className="text-xs font-bold text-white uppercase mb-2">Dados Blindados</h3>
+                <p className="text-[10px] text-white/40 leading-relaxed">
+                  Seus dados não passam por nossos servidores. Tudo é salvo localmente no seu aparelho (IndexedDB), garantindo privacidade total.
+                </p>
+              </div>
+
+              <div className="bg-white/[0.02] p-6 rounded-2xl border border-white/5">
+                <div className="h-10 w-10 bg-blue-500/10 rounded-xl flex items-center justify-center mb-4">
+                  <Zap className="h-5 w-5 text-blue-400" />
+                </div>
+                <h3 className="text-xs font-bold text-white uppercase mb-2">Alta Performance</h3>
+                <p className="text-[10px] text-white/40 leading-relaxed">
+                  Por rodar direto no hardware do seu celular, o G-Credito é instantâneo, mesmo sem internet ou em redes lentas.
+                </p>
+              </div>
+
+              <div className="bg-white/[0.02] p-6 rounded-2xl border border-white/5">
+                <div className="h-10 w-10 bg-green-500/10 rounded-xl flex items-center justify-center mb-4">
+                  <Database className="h-5 w-5 text-green-400" />
+                </div>
+                <h3 className="text-xs font-bold text-white uppercase mb-2">Banco Individual</h3>
+                <p className="text-[10px] text-white/40 leading-relaxed">
+                  Cada pessoa que acessa o link cria um banco de dados único e isolado. Suas dívidas são só suas e de mais ninguém.
+                </p>
+              </div>
+            </motion.div>
+
+            {/* Configurações e Backup */}
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6"
+            >
+               <button 
+                  onClick={handleExport}
+                  className="flex items-center gap-2 text-[9px] font-bold text-white/20 hover:text-dourado transition-all uppercase tracking-[0.2em]"
+                >
+                  <Download className="h-3 w-3" />
+                  Exportar Backup de Segurança
+                </button>
+                <div className="h-4 w-[1px] bg-white/5 hidden sm:block" />
+                <label className="flex items-center gap-2 text-[9px] font-bold text-white/20 hover:text-white transition-all uppercase tracking-[0.2em] cursor-pointer">
+                  <Database className="h-3 w-3" />
+                  Importar Dados Externos
+                  <input type="file" className="hidden" accept=".json" onChange={handleImport} />
+                </label>
+            </motion.div>
           </div>
         </div>
       </div>
+
+      <InstallBanner />
 
       {/* Drawer Técnico */}
       <ActionDrawer 
