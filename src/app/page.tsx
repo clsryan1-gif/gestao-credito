@@ -13,33 +13,47 @@ import {
   Plus, 
   ListOrdered,
   Download,
-  Database
+  Database,
+  ArrowLeft,
+  Settings
 } from 'lucide-react'
 import { DebtTable } from '@/components/ui/DebtTable'
 import { DebtForm } from '@/components/ui/DebtForm'
 import { ActionDrawer } from '@/components/ui/ActionDrawer'
 import { InstallBanner } from '@/components/ui/InstallBanner'
+import { SettingsView } from '@/components/ui/SettingsView'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Lock, Zap } from 'lucide-react'
+import { Lock, Zap, Key } from 'lucide-react'
 
 export default function Dashboard() {
   const [debts, setDebts] = useState<Debt[]>([])
   const [metrics, setMetrics] = useState<GlobalMetrics | null>(null)
   const [selectedDebt, setSelectedDebt] = useState<Debt | null>(null)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
-  const [view, setView] = useState<'list' | 'add'>('list')
+  const [view, setView] = useState<'list' | 'add' | 'settings'>('list')
   const [mounted, setMounted] = useState(false)
   const [search, setSearch] = useState('')
+  const [userConfig, setUserConfig] = useState(gStore.getConfig())
+  const [isLocked, setIsLocked] = useState(false)
+  const [pinInput, setPinInput] = useState('')
 
   const refreshData = () => {
     const allDebts = gStore.getDebts()
     setDebts(allDebts)
     setMetrics(gStore.getMetrics())
+    const config = gStore.getConfig()
+    setUserConfig(config)
+    
+    if (config.accessPin && !isLocked && mounted) {
+      // O PIN só bloqueia no primeiro carregamento
+    }
   }
 
   useEffect(() => {
     refreshData()
     setMounted(true)
+    const config = gStore.getConfig()
+    if (config.accessPin) setIsLocked(true)
   }, [])
 
   const handleManage = (debt: Debt) => {
@@ -72,6 +86,40 @@ export default function Dashboard() {
 
   if (!mounted) return null
 
+  if (isLocked) {
+    return (
+      <main className="min-h-screen bg-black flex items-center justify-center p-6">
+        <motion.div 
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          className="bg-preto-card border border-white/5 p-10 rounded-[40px] max-w-sm w-full text-center shadow-2xl shadow-blue-500/5"
+        >
+          <div className="h-16 w-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-blue-500/20">
+            <Lock className="h-8 w-8 text-blue-400" />
+          </div>
+          <h2 className="text-xl font-display font-bold text-white uppercase tracking-tight mb-2">Acesso Restrito</h2>
+          <p className="text-[10px] font-bold text-white/30 uppercase tracking-[0.2em] mb-8">Insira seu PIN G-CREDITO</p>
+          
+          <input 
+            type="password"
+            maxLength={4}
+            className="w-full bg-preto border border-white/10 rounded-2xl px-6 py-5 text-center text-2xl font-bold tracking-[1em] text-white focus:border-blue-500/40 outline-none mb-6 transition-all"
+            autoFocus
+            value={pinInput}
+            onChange={(e) => {
+              const val = e.target.value.replace(/\D/g, '')
+              setPinInput(val)
+              if (val === userConfig.accessPin) {
+                setIsLocked(false)
+              }
+            }}
+          />
+          <p className="text-[9px] text-white/10 uppercase tracking-widest leading-relaxed">Proteção Local Ativada</p>
+        </motion.div>
+      </main>
+    )
+  }
+
   return (
     <main className="min-h-screen bg-black text-white selection:bg-dourado/30 relative">
       <div className="mx-auto max-w-[1400px] px-6 py-12">
@@ -83,12 +131,23 @@ export default function Dashboard() {
               <ShieldCheck className="text-black h-7 w-7" />
             </div>
             <div>
-              <h1 className="font-display text-2xl font-bold tracking-tighter italic text-white group-hover:text-glow-dourado transition-all uppercase">G CREDITO</h1>
+              <h1 className="font-display text-2xl font-bold tracking-tighter italic text-white group-hover:text-glow-dourado transition-all uppercase">
+                {userConfig.ownerName ? `G-CREDITO DE ${userConfig.ownerName}` : 'G CREDITO'}
+              </h1>
               <p className="text-[10px] font-bold uppercase tracking-[0.4em] text-white/30">Private Debt Control</p>
             </div>
           </div>
 
           <nav className="flex bg-white/[0.03] border border-white/5 p-1.5 rounded-2xl backdrop-blur-sm self-start md:self-center">
+             {(view === 'add' || view === 'settings') && (
+               <button 
+                onClick={() => setView('list')}
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all text-white/30 hover:text-white mr-2 border-r border-white/5 pr-4"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Voltar
+              </button>
+             )}
              <button 
               onClick={() => setView('list')}
               className={cn(
@@ -97,7 +156,7 @@ export default function Dashboard() {
               )}
             >
               <ListOrdered className="h-4 w-4" />
-              Lista Técnica
+              Lista
             </button>
             <button 
               onClick={() => setView('add')}
@@ -107,7 +166,16 @@ export default function Dashboard() {
               )}
             >
               <Plus className="h-4 w-4" />
-              Novo Contrato
+              Novo
+            </button>
+            <button 
+              onClick={() => setView('settings')}
+              className={cn(
+                "flex items-center gap-2 px-5 py-2.5 rounded-xl text-[10px] font-bold uppercase tracking-widest transition-all ml-1",
+                view === 'settings' ? "bg-white/10 text-white shadow-lg" : "text-white/30 hover:text-white"
+              )}
+            >
+              <Settings className="h-4 w-4" />
             </button>
           </nav>
         </div>
@@ -120,11 +188,11 @@ export default function Dashboard() {
                 <div className="relative z-10">
                   <p className="text-[10px] font-bold text-white/20 uppercase tracking-[0.3em] mb-4">Capital em Giro</p>
                   <p className="text-3xl font-display font-bold text-white italic tracking-tighter">
-                    {formatCurrency(metrics?.totalReceivable || 0)}
+                    {userConfig.privacyMode ? 'R$ ••••••' : formatCurrency(metrics?.totalReceivable || 0)}
                   </p>
                   <div className="flex items-center gap-1.5 mt-2 text-green-500">
                     <TrendingUp className="h-3 w-3" />
-                    <span className="text-[10px] font-bold">+{formatCurrency(metrics?.totalProfit || 0)} Lucro</span>
+                    <span className="text-[10px] font-bold">+{userConfig.privacyMode ? '••••' : formatCurrency(metrics?.totalProfit || 0)} Lucro</span>
                   </div>
                 </div>
                 <BarChart3 className="absolute right-[-20px] bottom-[-20px] h-32 w-32 text-white/[0.02] -rotate-12 group-hover:rotate-0 transition-transform duration-700" />
@@ -182,7 +250,7 @@ export default function Dashboard() {
                   </div>
                   <DebtTable debts={filteredDebts} onManage={handleManage} />
                 </motion.div>
-              ) : (
+              ) : view === 'add' ? (
                 <motion.div 
                   key="add"
                   initial={{ opacity: 0, y: 20 }}
@@ -191,6 +259,16 @@ export default function Dashboard() {
                   transition={{ duration: 0.4 }}
                 >
                   <DebtForm onAdd={() => { setView('list'); refreshData(); }} />
+                </motion.div>
+              ) : (
+                <motion.div 
+                  key="settings"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <SettingsView onUpdate={refreshData} />
                 </motion.div>
               )}
             </AnimatePresence>
@@ -231,27 +309,6 @@ export default function Dashboard() {
                   Cada pessoa que acessa o link cria um banco de dados único e isolado. Suas dívidas são só suas e de mais ninguém.
                 </p>
               </div>
-            </motion.div>
-
-            {/* Configurações e Backup */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-6"
-            >
-               <button 
-                  onClick={handleExport}
-                  className="flex items-center gap-2 text-[9px] font-bold text-white/20 hover:text-dourado transition-all uppercase tracking-[0.2em]"
-                >
-                  <Download className="h-3 w-3" />
-                  Exportar Backup de Segurança
-                </button>
-                <div className="h-4 w-[1px] bg-white/5 hidden sm:block" />
-                <label className="flex items-center gap-2 text-[9px] font-bold text-white/20 hover:text-white transition-all uppercase tracking-[0.2em] cursor-pointer">
-                  <Database className="h-3 w-3" />
-                  Importar Dados Externos
-                  <input type="file" className="hidden" accept=".json" onChange={handleImport} />
-                </label>
             </motion.div>
           </div>
         </div>

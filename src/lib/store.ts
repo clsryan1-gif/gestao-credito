@@ -1,9 +1,20 @@
-import { Debt, DebtStatus, GlobalMetrics, PaymentEntry } from '@/types'
+import { Debt, DebtStatus, GlobalMetrics, PaymentEntry, UserConfig } from '@/types'
 
 const STORAGE_KEY = 'g_credito_db_v2'
+const CONFIG_KEY = 'g_credito_config'
 
 // G-Store 2.0: Robustez com Backup e Gestão Individual
 export const gStore = {
+  // --- CONFIGURAÇÕES ---
+  getConfig: (): UserConfig => {
+    if (typeof window === 'undefined') return { ownerName: '', privacyMode: false, accessPin: '', lastBackup: '' }
+    const data = localStorage.getItem(CONFIG_KEY)
+    return data ? JSON.parse(data) : { ownerName: '', privacyMode: false, accessPin: '', lastBackup: '' }
+  },
+
+  saveConfig: (config: UserConfig) => {
+    localStorage.setItem(CONFIG_KEY, JSON.stringify(config))
+  },
   // Obter todos os contratos
   getDebts: (): Debt[] => {
     if (typeof window === 'undefined') return []
@@ -58,6 +69,33 @@ export const gStore = {
         paidCount: nextIndex,
         payments: [...(debt.payments || []), newPayment],
         status: nextIndex >= debt.installmentsCount ? 'liquidado' : debt.status,
+        updatedAt: new Date().toISOString()
+      }
+
+      debts[index] = updated
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(debts))
+      return updated
+    }
+    return null
+  },
+
+  // Remover último pagamento adicionado
+  removeLatestPayment: (debtId: string) => {
+    const debts = gStore.getDebts()
+    const index = debts.findIndex(d => d.id === debtId)
+    if (index !== -1) {
+      const debt = debts[index]
+      if (debt.paidCount === 0) return debt
+
+      const updatedPayments = [...(debt.payments || [])]
+      updatedPayments.pop()
+
+      const newPaidCount = debt.paidCount - 1
+      const updated: Debt = {
+        ...debt,
+        paidCount: newPaidCount,
+        payments: updatedPayments,
+        status: newPaidCount === 0 ? 'ativo' : debt.status, // Se zerar, volta a ativo
         updatedAt: new Date().toISOString()
       }
 

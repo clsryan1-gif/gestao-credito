@@ -40,3 +40,10 @@ export interface GlobalMetrics {
   activeDebts: number
   overdueDebts: number
 }
+
+export interface UserConfig {
+  ownerName: string
+  privacyMode: boolean
+  accessPin: string
+  lastBackup: string
+}
