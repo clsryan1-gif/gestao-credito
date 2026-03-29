@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+:root {
+  --background: #000000;
+  --foreground: #ffffff;
+  --dourado: #C9A84C;
+  --preto-card: #0A0A0A;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-inter), sans-serif;
+  overflow-x: hidden;
+}
+
+@layer utilities {
+  .text-glow-dourado {
+    text-shadow: 0 0 10px rgba(201, 168, 76, 0.3);
+  }
+}
+
+/* Custom Scrollbar Premium */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #000;
+}
+::-webkit-scrollbar-thumb {
+  background: #C9A84C20;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C9A84C40;
+}
