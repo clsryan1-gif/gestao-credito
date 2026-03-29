@@ -124,8 +124,8 @@ export default function Dashboard() {
     <main className="min-h-screen bg-black text-white selection:bg-dourado/30 relative">
       <div className="mx-auto max-w-[1400px] px-6 py-12">
         
-        {/* Header G-Credito */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-16 px-2">
+        {/* Header G-Credito Sticky */}
+        <div className="sticky top-0 z-[100] bg-black/80 backdrop-blur-xl -mx-6 px-6 py-4 mb-12 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-6 transition-all">
           <div className="flex items-center gap-4 group">
             <div className="h-12 w-12 bg-dourado rounded-2xl flex items-center justify-center transform group-hover:rotate-12 transition-all duration-500 shadow-xl shadow-dourado/20">
               <ShieldCheck className="text-black h-7 w-7" />

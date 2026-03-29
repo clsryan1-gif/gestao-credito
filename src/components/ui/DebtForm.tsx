@@ -189,6 +189,13 @@ export function DebtForm({ onAdd }: DebtFormProps) {
           <Button type="submit" size="lg" className="w-full sm:w-auto min-w-[200px]">
             Emitir Contrato
           </Button>
+          <button 
+            type="button"
+            onClick={onAdd}
+            className="w-full sm:w-auto px-8 py-4 text-[10px] font-bold uppercase tracking-widest text-white/20 hover:text-white transition-all underline decoration-white/10 underline-offset-8"
+          >
+            Cancelar e Voltar
+          </button>
         </div>
       </form>
       
